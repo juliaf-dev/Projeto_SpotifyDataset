@@ -18,9 +18,8 @@ Bem-vindo(a) ao **Dashboard de Análise de Dados Musicais do Spotify**!
 Este aplicativo interativo foi desenvolvido para explorar e visualizar as principais percepções sobre músicas, artistas e álbuns disponíveis no Spotify. Através de dados detalhados, buscamos responder a perguntas como:
 
 * **Quais artistas têm maior popularidade e seguidores?**
-* **Como a duração das músicas se relaciona com sua popularidade?**
+* **Como diferentes fatores se relacionam com sua popularidade?**
 * **Quais gêneros musicais são mais predominantes?**
-* **Como a data de lançamento afeta o desempenho das músicas?**
 
 Nosso objetivo é fornecer uma ferramenta clara e intuitiva para que **fãs de música, artistas, produtores e pesquisadores** possam compreender melhor as características do cenário musical atual.
 
@@ -31,10 +30,10 @@ Nosso objetivo é fornecer uma ferramenta clara e intuitiva para que **fãs de m
 Utilize o menu de navegação na **barra lateral (esquerda)** para explorar as diferentes seções do aplicativo:
 
 * **📊 Visão Geral:** Explore a distribuição de artistas, álbuns e métricas principais.
-* **🎵 Análise por Artista:** Mergulhe em análises específicas por artista.
-* **📈 Popularidade & Duração:** Entenda a relação entre duração musical e popularidade.
-* **🎼 Gêneros Musicais:** Explore a diversidade de gêneros no dataset.
-* **🔍 Insights Avançados:** Acesse padrões mais profundos nos dados.
+* **🎵 Análise por Artista:** Análises específicas por artista.
+* **📈 Popularidade** Análise de fatores para popularidade.
+* **🎼 Gêneros Musicais:** Analise de detalhes sobre cada gênero musical e comparações.
+* **🔍 Insights Avançados:** Análises aprofundadas para uso comercial
 
 ---
 
@@ -55,7 +54,6 @@ O seu conjunto de dados tem as seguintes dimensões:
 - **Data de lançamento**
 
 
-Agradecemos a sua visita e esperamos que encontre informações valiosas para sua apreciação musical!
 """)
 
 # Métricas rápidas
