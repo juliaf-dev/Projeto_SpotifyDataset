@@ -35,7 +35,6 @@ df_ano = df_temporal.groupby('release_year').agg({
     'track_duration_min': 'mean', 
     'artist_popularity': 'mean',
     'track_name': 'count',
-    'explicit': lambda x: (x == 'Sim').mean() * 100  # % de conteúdo explícito
 }).reset_index()
 
 df_ano.columns = ['Ano', 'Popularidade_Media', 'Duracao_Media', 'Popularidade_Artista_Media', 
@@ -48,7 +47,7 @@ fig_temporal = go.Figure()
 fig_temporal.add_trace(go.Scatter(
     x=df_ano['Ano'], y=df_ano['Popularidade_Media'],
     name='🎵 Popularidade Média',
-    line=dict(color='#1DB954', width=4),  # Verde do Spotify
+    line=dict(color='#1DB954', width=4),  
     mode='lines+markers'
 ))
 
@@ -84,12 +83,12 @@ st.plotly_chart(fig_temporal, use_container_width=True)
 st.markdown('---')
 
 # =============================================
-# ANÁLISE DE SEGMENTAÇÃO DE MERCADO MELHORADA
+# ANÁLISE DE SEGMENTAÇÃO DE MERCADO
 # =============================================
 
 st.header('🎵 Segmentação Estratégica do Mercado Musical')
 
-# que clusterização automática. Baseada em conhecimento do domínio musical.
+# clusterização automática. Baseada em conhecimento do domínio musical.
 st.markdown("""
 **Metodologia:** Segmentação baseada em regras de negócio da indústria musical.
 Categoriza artistas em grupos estrategicamente relevantes.
@@ -144,7 +143,7 @@ segment_stats = df.groupby('segmento_estrategico').agg({
     'explicit': lambda x: (x == 'Sim').mean() * 100
 }).round(2)
 
-# Reformatar o DataFrame para melhor visualização
+# tabela de informações sintetizadas
 segment_stats.columns = ['Popularidade_Média', 'Total_Músicas', 'Duração_Média', 'Artistas_Únicos', 'Percentual_Explicito']
 segment_stats = segment_stats.sort_values('Popularidade_Média', ascending=False)
 
@@ -158,7 +157,7 @@ st.markdown('---')
 
 st.header('🔮 Simulador de Potencial de Popularidade')
 
-# JUSTIFICATIVA: Modelo preditivo simples é mais útil que clusterização
+# Modelo preditivo simples é mais útil que clusterização
 # Dá ao usuário ferramentas práticas para tomada de decisão
 st.markdown("""
 **Como funciona:** Baseado nas correlações identificadas nos dados, estimamos o potencial 
