@@ -173,24 +173,6 @@ if genero_selecionado != 'Todos':
         st.plotly_chart(fig_artistas_genero, use_container_width=True)
         
         # =============================================
-        # DISTRIBUIÇÃO DE POPULARIDADE
-        # =============================================
-        
-        st.subheader(f'📈 Distribuição de Popularidade no {genero_selecionado}')
-        
-        fig_distribuicao = px.histogram(
-            df_genero,
-            x='track_popularity',
-            nbins=20,
-            title=f'Distribuição de Popularidade - {genero_selecionado}',
-            labels={'track_popularity': 'Popularidade'},
-            color_discrete_sequence=['lightblue']
-        )
-        
-        fig_distribuicao.update_layout(height=400)
-        st.plotly_chart(fig_distribuicao, use_container_width=True)
-        
-        # =============================================
         # COMPARAÇÃO ENTRE GÊNEROS
         # =============================================
         

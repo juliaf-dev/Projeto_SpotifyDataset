@@ -21,7 +21,7 @@ df = carregar_dados()
 
 st.subheader('📊 Distribuição da Popularidade por Duração da Música')
 
-# Criar categorias de duração para melhor visualização
+# Criar categorias agrupando por duração para melhor visualização
 df['duration_category'] = pd.cut(df['track_duration_min'], 
                                bins=[0, 2, 4, 6, 10, 20], 
                                labels=['0-2min', '2-4min', '4-6min', '6-10min', '10+min'])
@@ -29,6 +29,7 @@ df['duration_category'] = pd.cut(df['track_duration_min'],
 # Converter para string para evitar problemas de serialização
 df['duration_category_str'] = df['duration_category'].astype(str)
 
+#CRIANDO GRAFICO BOXPLOT
 fig = px.box(df,
     x='duration_category_str',
     y='track_popularity',
@@ -48,10 +49,56 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("""
-**📝 Interpretação:** Este gráfico mostra como a popularidade das músicas se distribui entre diferentes durações.
 - **Popularidade:** Escala de 0-100, onde 100 é mais popular
 - **Duração:** Categorizada em intervalos de minutos
 """)
+# =============================================
+# INTERPRETAÇÃO AUTOMÁTICA DO GRÁFICO
+# =============================================
+
+# 1. Encontrar qual categoria tem MAIS músicas
+categoria_mais_comum = (
+    df['duration_category_str']
+    .value_counts()
+    .idxmax()
+)
+
+# 2. Encontrar qual categoria tem MAIOR POPULARIDADE MÉDIA
+categoria_mais_popular = (
+    df.groupby('duration_category_str')['track_popularity']
+    .mean()
+    .idxmax()
+)
+
+# 3. Mediana por categoria para interpretar distribuição
+medianas = df.groupby('duration_category_str')['track_popularity'].median()
+
+# 4. Determinar categoria com MENOR popularidade mediana
+categoria_menos_popular = medianas.idxmin()
+
+# 5. Número de outliers (pontos fora do padrão) por categoria
+outliers_info = {}
+for cat in df['duration_category_str'].unique():
+    grupo = df[df['duration_category_str'] == cat]['track_popularity']
+    q1, q3 = grupo.quantile([0.25, 0.75])
+    iqr = q3 - q1
+    limite_superior = q3 + 1.5 * iqr
+    outliers = grupo[grupo > limite_superior]
+    outliers_info[cat] = len(outliers)
+
+categoria_mais_outliers = max(outliers_info, key=outliers_info.get)
+
+
+st.markdown(f"""
+### 🧠 Interpretação Automática do Gráfico
+
+- A maior densidade de músicas está na categoria **{categoria_mais_comum}**, indicando ser a duração mais comum do dataset.
+- As músicas **mais populares**, em média, pertencem à categoria **{categoria_mais_popular}**.
+- A categoria menos popular, analisando a mediana, é **{categoria_menos_popular}**.
+- A categoria que apresenta **mais outliers de popularidade** (músicas muito mais populares que o restante do grupo) é **{categoria_mais_outliers}**.
+- Isso sugere que músicas de duração **moderada** tendem a ter desempenho mais consistente, enquanto músicas muito curtas ou muito longas apresentam grande variabilidade.
+""")
+
 
 st.markdown("---")
 
@@ -121,8 +168,11 @@ fig_barras.update_layout(
 )
 st.plotly_chart(fig_barras, use_container_width=True)
 
-st.markdown("---")
+st.markdown("""
+**📝 Interpretação:** Analisa que músicas de albuns possuem maior populares.
+""")
 
+st.markdown("---")        
 
 # =============================================
 # GRÁFICO 5: TOP ARTISTAS MAIS POPULARES
@@ -153,47 +203,14 @@ fig_barras_h.update_layout(
 )
 st.plotly_chart(fig_barras_h, use_container_width=True)
 
+st.markdown("""
+**📝 Interpretação:** Analisa que a artista mais popular é a Taylor Swift.
+""")
 st.markdown("---")
 
-# =============================================
-# GRÁFICO 6: SCATTER PLOT - DURAÇÃO VS POPULARIDADE
-# =============================================
-
-st.subheader('📈 Relação entre Duração e Popularidade das Músicas')
-
-fig_scatter = px.scatter(
-    df,
-    x='track_duration_min',
-    y='track_popularity',
-    color='explicit',
-    size='artist_popularity',
-    title='Relação entre Duração e Popularidade das Músicas',
-    labels={
-        'track_duration_min': 'Duração (minutos)',
-        'track_popularity': 'Popularidade da Música',
-        'explicit': 'Conteúdo Explícito',
-        'artist_popularity': 'Popularidade do Artista'
-    },
-    color_discrete_map={'Sim': 'red', 'Não': 'green'},
-    hover_data=['artist_name', 'album_name']
-)
-
-fig_scatter.update_layout(
-    xaxis_title_text='Duração da Música (minutos)',
-    yaxis_title_text='Popularidade da Música',
-    title_x=0.5,
-    margin=dict(t=80)
-)
-st.plotly_chart(fig_scatter, use_container_width=True)
-
-st.markdown("""
-**📝 Interpretação:** Este gráfico de dispersão permite visualizar a relação entre a duração das músicas e sua popularidade.
-- **Cores:** Indicam se a música tem conteúdo explícito
-- **Tamanho dos pontos:** Representa a popularidade do artista
-""")
 
 # =============================================
-# GRÁFICO 7: EVOLUÇÃO TEMPORAL (LANÇAMENTOS)
+# GRÁFICO 6: EVOLUÇÃO TEMPORAL (LANÇAMENTOS)
 # =============================================
 
 st.subheader('📅 Distribuição de Lançamentos por Ano')
@@ -220,6 +237,39 @@ fig_temporal.update_layout(
     margin=dict(t=80)
 )
 st.plotly_chart(fig_temporal, use_container_width=True)
+# =============================================
+# INTERPRETAÇÃO AUTOMÁTICA DO GRÁFICO TEMPORAL
+# =============================================
+
+# Encontrar ano com mais lançamentos
+ano_max = df_anos.loc[df_anos['Quantidade'].idxmax(), 'Ano']
+qtd_max = df_anos['Quantidade'].max()
+
+# Encontrar ano com menos lançamentos
+ano_min = df_anos.loc[df_anos['Quantidade'].idxmin(), 'Ano']
+qtd_min = df_anos['Quantidade'].min()
+
+# Tendência geral ao longo dos anos (aumento, queda ou estabilidade)
+import numpy as np
+coef = np.polyfit(df_anos['Ano'], df_anos['Quantidade'], 1)[0]
+
+if coef > 0:
+    tendencia = "uma **tendência geral de aumento** no número de lançamentos ao longo dos anos"
+elif coef < 0:
+    tendencia = "uma **tendência geral de queda** no número de lançamentos ao longo dos anos"
+else:
+    tendencia = "um **comportamento estável**, sem tendência clara de crescimento ou queda"
+
+# Montar texto final
+interpretacao_temporal = f"""
+### 🧠 Interpretação Automática do Gráfico — Lançamentos ao Longo do Tempo
+
+- O ano com **maior número de lançamentos** foi **{ano_max}**, com aproximadamente **{qtd_max} músicas**.
+- O ano com **menor número de lançamentos** foi **{ano_min}**, com cerca de **{qtd_min} músicas**.
+- A análise da linha temporal indica **{tendencia}**.
+"""
+
+st.markdown(interpretacao_temporal)
 
 st.markdown("---")
 
@@ -227,25 +277,8 @@ st.markdown("---")
 # MÉTRICAS RÁPIDAS NO FINAL
 # =============================================
 
-st.markdown("---")
 st.subheader('📋 Resumo Estatístico')
 
-col1, col2, col3, col4 = st.columns(4)
-
-with col1:
-    st.metric("Total de Músicas", f"{len(df):,}")
-    
-with col2:
-    media_duracao = df['track_duration_min'].mean()
-    st.metric("Duração Média", f"{media_duracao:.1f} min")
-    
-with col3:
-    popularidade_media = df['track_popularity'].mean()
-    st.metric("Popularidade Média", f"{popularidade_media:.1f}")
-    
-with col4:
-    musicas_explicit = len(df[df['explicit'] == 'Sim'])
-    st.metric("Músicas Explícitas", f"{musicas_explicit}")
 
 # Métricas adicionais
 col5, col6, col7, col8 = st.columns(4)
@@ -267,4 +300,3 @@ with col8:
     max_year = df['release_year'].max()
     st.metric("Período Analisado", f"{min_year}-{max_year}")
 
-st.caption("🎵 Dashboard de Análise de Dados Musicais - Desenvolvido para Projeto Streamlit")
